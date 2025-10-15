@@ -1,0 +1,23 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/ebay_cloned
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: https://login.microsoftonline.com/${AZ_TENANT_ID}/v2.0
+          jwk-set-uri: https://login.microsoftonline.com/${AZ_TENANT_ID}/discovery/v2.0/keys
+  jpa:
+    properties:
+      hibernate:
+        format_sql: true
+    open-in-view: false
+    show-sql: true
+
+azure:
+  activedirectory:
+    client-id: ${AZ_CLIENT_ID}
+    client-secret: ${AZ_CLIENT_SECRET}
+    tenant-id: ${AZ_TENANT_ID}
