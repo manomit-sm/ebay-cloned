@@ -27,6 +27,7 @@ public class GraphClientConfig {
                 .tenantId(tenantId)
                 .clientId(clientId)
                 .clientSecret(clientSecret)
+
                 .build();
 
         return new GraphServiceClient(credential, SCOPE);

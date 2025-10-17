@@ -9,3 +9,13 @@ databaseChangeLog:
             relativeToChangelogFile: false
             splitStatements: false
             stripComments: false
+  - changeSet:
+      id: 002-alter-user-table
+      author: manomit
+      runOnChange: true
+      changes:
+        - sqlFile:
+            path: db/changelog/sql/002-alter-user-table.sql
+            relativeToChangelogFile: false
+            splitStatements: false
+            stripComments: false

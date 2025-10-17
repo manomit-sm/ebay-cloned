@@ -13,24 +13,30 @@ import lombok.EqualsAndHashCode;
 @Data
 public non-sealed class User extends BaseEntity {
 
-    @Column(name = "azure_object_id", unique = true)
-    private String azureObjectId;
+    @Column(name = "first_name")
+    private String firstName;
+
+    @Column(name = "last_name")
+    private String lastName;
+
+    @Column(name = "azure_id", unique = true)
+    private String azureId;
 
     // Email / username
     @Column(name = "email", nullable = false, unique = true)
     private String email;
 
-    // Display name
-    @Column(name = "display_name", nullable = false)
-    private String displayName;
+    private boolean status;
 
-    // Password (optional, only if you plan local login)
-    @Column(name = "password")
-    private String password;
+    @Column(columnDefinition = "TEXT")
+    private String address;
 
+    private String photo;
 
-    // Account enabled / disabled
-    @Column(name = "enabled")
-    private boolean enabled = true;
+    @PrePersist
+    public void prePersist() {
+        this.status = false;
+    }
+
 
 }

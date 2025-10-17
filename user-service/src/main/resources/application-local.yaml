@@ -21,3 +21,4 @@ azure:
     client-id: ${AZ_CLIENT_ID}
     client-secret: ${AZ_CLIENT_SECRET}
     tenant-id: ${AZ_TENANT_ID}
+    issuer: ${AZ_ISSUER}
