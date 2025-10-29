@@ -16,6 +16,8 @@ spring:
     open-in-view: false
     show-sql: true
 
+sendgrid:
+  apiKey: ${SENDGRID_API_KEY}
 azure:
   activedirectory:
     client-id: ${AZ_CLIENT_ID}
