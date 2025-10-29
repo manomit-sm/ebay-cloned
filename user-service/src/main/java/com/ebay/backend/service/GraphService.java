@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
 import java.util.List;
 
 @Service
@@ -29,20 +30,24 @@ public class GraphService {
 
     private final UserRepository userRepository;
 
+    private final UserUtil userUtil;
+
     public GraphService(
             GraphServiceClient graphServiceClient,
             @Value("${azure.activedirectory.issuer}") final String azIssuer,
             UserMapper userMapper,
-            UserRepository userRepository
+            UserRepository userRepository,
+            UserUtil userUtil
     ) {
         this.graphServiceClient = graphServiceClient;
         this.azIssuer = azIssuer;
         this.userMapper = userMapper;
         this.userRepository = userRepository;
+        this.userUtil = userUtil;
     }
 
     @Transactional
-    public UserRegistrationResponse createUser(UserRegistrationRequest userRegistrationRequest) {
+    public UserRegistrationResponse createUser(UserRegistrationRequest userRegistrationRequest) throws IOException {
         String displayName = userRegistrationRequest.firstName() + " " + userRegistrationRequest.lastName();
 
         // 2️⃣ Create Microsoft Graph user object
@@ -56,7 +61,7 @@ public class GraphService {
         assert createdGraphUser != null;
         var newUser = userMapper.toUserEntity(userRegistrationRequest, createdGraphUser.getId());
 
-        sendVerificationEmail(userRegistrationRequest.email(), UserUtil.getEmailVerificationCode(), createdGraphUser.getId());
+        userUtil.sendVerificationEmail(userRegistrationRequest.email(), userUtil.getEmailVerificationCode());
 
         var savedUser = userRepository.save(newUser);
 
@@ -77,35 +82,5 @@ public class GraphService {
         graphUser.setPasswordProfile(passwordProfile);
         graphUser.setMail(userRegistrationRequest.email());
         return graphUser;
-    }
-
-    private void sendVerificationEmail(String toEmail, int verificationCode, String azureId) {
-        // Build the email message
-        Message message = new Message();
-        message.setSubject("Verify your account");
-
-        ItemBody body = new ItemBody();
-        body.setContentType(BodyType.Html);
-        body.setContent("""
-                <p>Hello,</p>
-                <p>Thank you for registering! Please verify your email by submitting the code: %d</p>
-                <p>If you didn’t request this, please ignore this email.</p>
-                """.formatted(verificationCode));
-
-        message.setBody(body);
-
-        // Recipient
-        Recipient recipient = new Recipient();
-        EmailAddress emailAddress = new EmailAddress();
-        emailAddress.setAddress(toEmail);
-        recipient.setEmailAddress(emailAddress);
-        message.setToRecipients(List.of(recipient));
-
-
-
-        // Send from a mailbox in your tenant
-        var sendMailRequest = new SendMailPostRequestBody();
-        sendMailRequest.setMessage(message);
-        graphServiceClient.users().byUserId(azureId).sendMail().post(sendMailRequest);
     }
 }

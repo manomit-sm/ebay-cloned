@@ -2,12 +2,16 @@ package com.ebay.backend.config;
 
 import com.azure.identity.ClientSecretCredential;
 import com.azure.identity.ClientSecretCredentialBuilder;
+import com.microsoft.graph.core.authentication.AzureIdentityAuthenticationProvider;
 import com.microsoft.graph.serviceclient.GraphServiceClient;
+import com.microsoft.kiota.RequestAdapter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.scheduling.annotation.EnableAsync;
 
 @Configuration
+@EnableAsync
 public class GraphClientConfig {
 
     @Value("${azure.activedirectory.tenant-id}")
@@ -30,6 +34,9 @@ public class GraphClientConfig {
 
                 .build();
 
-        return new GraphServiceClient(credential, SCOPE);
+        final String[] allowedHosts = new String[] { "graph.microsoft.com" };
+        final AzureIdentityAuthenticationProvider authProvider =
+                new AzureIdentityAuthenticationProvider(credential, allowedHosts, "https://graph.microsoft.com/.default");
+        return new GraphServiceClient(authProvider);
     }
 }
